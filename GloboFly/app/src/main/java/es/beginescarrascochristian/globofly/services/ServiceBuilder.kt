@@ -10,8 +10,9 @@ object ServiceBuilder {
 
     private const val URL = "http://10.0.2.2:9000/"
     private val logger = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
-    
-    private val okHttp:OkHttpClient.Builder = OkHttpClient.Builder()
+
+    private val okHttp:OkHttpClient.Builder =
+        OkHttpClient.Builder().addInterceptor(logger)
 
     private val builder:Retrofit.Builder = Retrofit.Builder().baseUrl(URL)
         .addConverterFactory(GsonConverterFactory.create())

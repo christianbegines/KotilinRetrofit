@@ -4,10 +4,16 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
 import es.beginescarrascochristian.globofly.R
 import es.beginescarrascochristian.globofly.helpers.SampleData
 import es.beginescarrascochristian.globofly.models.Destination
+import es.beginescarrascochristian.globofly.services.DestinationService
+import es.beginescarrascochristian.globofly.services.ServiceBuilder
 import kotlinx.android.synthetic.main.activity_destiny_detail.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class DestinationDetailActivity : AppCompatActivity() {
 
@@ -21,6 +27,8 @@ class DestinationDetailActivity : AppCompatActivity() {
 
         if(bundle?.containsKey(ARG_ITEM_ID) !!){
             val id  = intent.getIntExtra(ARG_ITEM_ID,0)
+
+
             loadDetails(id)
             initUpdateButton(id)
             intDeleteButton(id)
@@ -30,14 +38,30 @@ class DestinationDetailActivity : AppCompatActivity() {
 
     private fun loadDetails(id:Int){
 
-        val destination = SampleData.getDestinationById(id)
+        val destinationService: DestinationService = ServiceBuilder.buildService(DestinationService::class.java)
+        val requestCall : Call<Destination> = destinationService.getDestination(id)
 
-        destination?.let {
-            et_city.setText(destination.city)
-            et_country.setText(destination.country)
-            et_description.setText(destination.description)
-            collapsing_toolbar.title = destination.city
-        }
+        requestCall.enqueue(object : Callback<Destination>{
+            override fun onResponse(call: Call<Destination>, response: Response<Destination>) {
+                if(response.isSuccessful){
+                    val destination: Destination? = response.body()
+                    destination?.let {
+                        et_city.setText(destination.city)
+                        et_country.setText(destination.country)
+                        et_description.setText(destination.description)
+                        collapsing_toolbar.title = destination.city
+                    }
+                } else{
+                Toast.makeText(this@DestinationDetailActivity,
+                    "Failed to retrieve items", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            override fun onFailure(call: Call<Destination>, t: Throwable) {
+                Toast.makeText(this@DestinationDetailActivity,
+                    "Error Ocurred" + t.toString(), Toast.LENGTH_LONG).show()
+            }
+        })
     }
 
     private fun initUpdateButton(id: Int){
