@@ -12,8 +12,7 @@ class WelcomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
-
-        message.text = "Sekiro es muy facil , aprende a jugar manco"
+        message.text = getString(R.string.title)
     }
 
     fun getStarted(view:View){
